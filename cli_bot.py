@@ -1,15 +1,14 @@
 from collections import UserDict
 
 class Field:
-        pass
-    
-class Name(Field):
     def __init__(self, value):
         self.value = value
+        
+class Name(Field):
+    pass
 
 class Phone(Field):
-    def __init__(self, value=None):
-        self.value = value
+    pass
 
 class Record:
     def __init__(self, name, phone):
