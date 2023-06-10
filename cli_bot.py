@@ -1,7 +1,36 @@
 from collections import UserDict
 
-def main():
+class Field:
+        pass
+    
+class Name(Field):
+    def __init__(self, value):
+        self.value = value
 
+class Phone(Field):
+    def __init__(self, value=None):
+        self.value = value
+
+class Record:
+    def __init__(self, name, phone):
+        self.name = name
+        self.phones = [phone]
+    
+    def add_phone(self, phone):
+        self.phones.append(phone)
+
+    def remove_phone(self, phone):
+        self.phones.remove(phone)
+
+    def change_phone(self, phone):
+        self.phones.pop()
+        self.phones.append(phone)
+
+class AddressBook(UserDict):
+    def add_record(self, record):
+        self.data.update({record.name.value: record})
+
+def main():
     def input_error(func):
         def inner(string):
             try:
@@ -12,64 +41,43 @@ def main():
                 print("Enter user name")
         return inner
     
-    class Field:
-        pass
-    
-    class Name(Field):
-        def __init__(self, name):
-            self.name = name
-
-    class Phone(Field):
-        def __init__(self, phone=None):
-            self.phone = phone
-
-    class Record:
-        def __init__(self, name):
-            self.name = name
-            self.phones = []
-        
-        def add_phone(self, phone):
-            self.phones.append(phone)
-
-        def remove_phone(self, phone):
-            self.phones.remove(phone)
-
-        def change_phone(self, new_phone):
-            self.phones.pop()
-            self.phones.append(new_phone)
-
-    class AddressBook(UserDict):
-        def add_record(self, record):
-            self.data.update({record.name: record.phones})
-    
     @input_error
     def handler_add(string):
         parser = string.split(" ")
-        name = Name(parser[1].capitalize()).name
+        name = Name(parser[1].capitalize())
         phone = Phone(parser[2])
-        if name not in contacts:
-            current_record = Record(name)
-            contacts.update({name: current_record})
-            current_record.add_phone(phone.phone)
+        if name.value not in ab.data:
+            rec = Record(name, phone)
+            ab.add_record(rec)
         else:
-            contacts.get(name).add_phone(phone.phone)
-        book.add_record(contacts.get(name))
+            ab[name.value].add_phone(phone)
 
+    @input_error
+    def handler_remove(string):
+        parser = string.split(" ")
+        name = parser[1].capitalize()
+        for phone in ab[name].phones:
+            if phone.value == parser[2]:
+                ab[name].remove_phone(phone)
+            
     @input_error
     def handler_change(string):
         parser = string.split(" ")
-        name = Name(parser[1].capitalize()).name
+        name = parser[1].capitalize()
         phone = Phone(parser[2])
-        contacts.get(name).change_phone(phone.phone)
-        book.add_record(contacts.get(name))
+        ab[name].change_phone(phone)
     
     @input_error
     def handler_phone(string):
         parser = string.split(" ")
-        print(book.data[parser[1].capitalize()]) 
+        name = parser[1].capitalize()
+        print([x.value for x in ab[name].phones]) 
 
-    contacts = {}
-    book = AddressBook()
+    def handler_show_all():
+        for v in ab.data.values():
+            print(v.name.value, [x.value for x in v.phones])
+
+    ab = AddressBook()
     while True:
         string = input().lower()
         if string in ["good bye", "close", "exit"]:
@@ -78,10 +86,11 @@ def main():
         elif string == "hello":
             print("How can I help you?")
         elif string == "show all":
-            for k, v in book.data.items():
-                print(k, v)
+            handler_show_all()
         elif string.startswith("add"):
             handler_add(string)
+        elif string.startswith("delete"):
+            handler_remove(string)
         elif string.startswith("change"):
             handler_change(string)
         elif string.startswith("phone"):
